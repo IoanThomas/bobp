@@ -1,4 +1,13 @@
+use crate::parse::Token;
 use crate::{result, sub, Error};
+use std::str::FromStr;
+
+pub fn parse_i<T: FromStr>(tokens: &[Token], index: usize) -> result::Result<T> {
+    let token = get(tokens, index)?;
+    let value = token.parse::<T>().map_err(|_| Error::InvalidFormat)?;
+
+    Ok(value)
+}
 
 pub fn parse_integer(tokens: &[&str], index: usize) -> result::Result<usize> {
     let token = get(tokens, index)?;

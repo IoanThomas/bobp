@@ -25,9 +25,9 @@ pub fn parse(input: impl AsRef<str>) -> result::Result<(Vec<[f32; 8]>, Vec<usize
         let tokens = &tokens[1..];
 
         match key {
-            "v" => parse::position(&mut positions, tokens)?,
-            "vt" => parse::texture_coordinates(&mut texture_coordinates, tokens)?,
-            "vn" => parse::normal(&mut normals, tokens)?,
+            "v" => positions.push(parse::position(tokens)?),
+            "vt" => texture_coordinates.push(parse::texture_coordinates(tokens)?),
+            "vn" => normals.push(parse::normal(tokens)?),
             "f" => parse_face(tokens, &mut component_indices, &mut indices)?,
             _ => {}
         }
