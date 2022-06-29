@@ -35,6 +35,6 @@ fn parse_value<const NUM_COMPONENTS: usize>(
     Ok(())
 }
 
-pub fn parse_float(token: &str) -> result::Result<f32> {
+fn parse_float(token: &str) -> result::Result<f32> {
     Ok(token.parse::<f32>()?)
 }
