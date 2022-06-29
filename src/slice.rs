@@ -1,12 +1,5 @@
 use crate::{result, sub, Error};
 
-pub fn parse_float(tokens: &[&str], index: usize) -> result::Result<f32> {
-    let token = get(tokens, index)?;
-    let value = token.parse::<f32>()?;
-
-    Ok(value)
-}
-
 pub fn parse_integer(tokens: &[&str], index: usize) -> result::Result<usize> {
     let token = get(tokens, index)?;
     let value = token.parse::<usize>()?;

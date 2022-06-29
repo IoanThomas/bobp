@@ -1,33 +1,40 @@
-use crate::{result, slice};
+use crate::{result, Error};
+use std::ops::Deref;
 
 pub fn position(positions: &mut Vec<[f32; 3]>, tokens: &[&str]) -> result::Result<()> {
-    let value1 = slice::parse_float(tokens, 0)?;
-    let value2 = slice::parse_float(tokens, 1)?;
-    let value3 = slice::parse_float(tokens, 2)?;
-
-    positions.push([value1, value2, value3]);
-
-    Ok(())
+    parse_value(positions, tokens)
 }
 
 pub fn texture_coordinates(
     texture_coordinates: &mut Vec<[f32; 2]>,
     tokens: &[&str],
 ) -> result::Result<()> {
-    let value1 = slice::parse_float(tokens, 0)?;
-    let value2 = slice::parse_float(tokens, 1)?;
+    parse_value(texture_coordinates, tokens)
+}
 
-    texture_coordinates.push([value1, value2]);
+pub fn normal(normals: &mut Vec<[f32; 3]>, tokens: &[&str]) -> result::Result<()> {
+    parse_value(normals, tokens)
+}
+
+fn parse_value<const NUM_COMPONENTS: usize>(
+    components: &mut Vec<[f32; NUM_COMPONENTS]>,
+    tokens: &[&str],
+) -> result::Result<()> {
+    let values = tokens
+        .iter()
+        .map(Deref::deref)
+        .map(parse_float)
+        .collect::<result::Result<Vec<_>>>()?;
+
+    if values.len() != NUM_COMPONENTS {
+        return Err(Error::InvalidFormat);
+    }
+
+    components.push(values.try_into().map_err(|_| Error::InvalidFormat)?);
 
     Ok(())
 }
 
-pub fn normal(normals: &mut Vec<[f32; 3]>, tokens: &[&str]) -> result::Result<()> {
-    let value1 = slice::parse_float(tokens, 0)?;
-    let value2 = slice::parse_float(tokens, 1)?;
-    let value3 = slice::parse_float(tokens, 2)?;
-
-    normals.push([value1, value2, value3]);
-
-    Ok(())
+pub fn parse_float(token: &str) -> result::Result<f32> {
+    Ok(token.parse::<f32>()?)
 }
