@@ -1,7 +1,7 @@
 fn main() {
-    let string = std::fs::read_to_string("../../cube.obj").unwrap();
-    let parsed = bop::parse(string).unwrap();
+    let obj_string = std::fs::read_to_string("../../cube.obj").expect("failed to load OBJ file");
+    let (vertices, indices) = bop::parse_obj(obj_string).expect("failed to parse OBJ");
 
-    println!("{:?}", parsed.0);
-    println!("{:?}", parsed.1);
+    println!("Vertices ({}): {:?}", vertices.len(), vertices);
+    println!("Indices ({}): {:?}", indices.len(), indices);
 }

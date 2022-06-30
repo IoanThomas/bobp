@@ -1,21 +1,20 @@
 use crate::error::Error;
+use crate::types::{Normal, Position, TextureCoordinates, Token, Vertex, VertexKey};
 
 pub mod error;
 mod parse;
 pub mod result;
 mod slice;
+mod types;
 
-pub fn parse(input: impl AsRef<str>) -> result::Result<(Vec<[f32; 8]>, Vec<usize>)> {
-    let mut indices = vec![];
-
+pub fn parse_obj(input: impl AsRef<str>) -> result::Result<(Vec<Vertex>, Vec<usize>)> {
     let mut positions = vec![];
     let mut texture_coordinates = vec![];
     let mut normals = vec![];
-
-    let mut component_indices = vec![];
+    let mut vertex_keys = vec![];
 
     for line in input.as_ref().to_lowercase().lines() {
-        let tokens = line.split_whitespace().collect::<Vec<_>>();
+        let tokens = line.split_whitespace().collect::<Vec<Token>>();
 
         if tokens.is_empty() {
             return Err(Error::InvalidFormat);
@@ -28,35 +27,77 @@ pub fn parse(input: impl AsRef<str>) -> result::Result<(Vec<[f32; 8]>, Vec<usize
             "v" => positions.push(parse::position(tokens)?),
             "vt" => texture_coordinates.push(parse::texture_coordinates(tokens)?),
             "vn" => normals.push(parse::normal(tokens)?),
-            "f" => parse_face(tokens, &mut component_indices, &mut indices)?,
+            "f" => vertex_keys.extend(parse::face(tokens)?),
             _ => {}
         }
     }
 
-    let vertices = component_indices
-        .into_iter()
-        .map(|component_indices| {
-            component_indices_to_vertex(
-                component_indices,
-                &positions,
-                &texture_coordinates,
-                &normals,
-            )
-        })
-        .collect::<result::Result<Vec<_>>>()?;
+    let unique_vertex_keys = unique_vertex_keys(&vertex_keys);
+
+    let indices = get_vertex_key_indices(&vertex_keys, &unique_vertex_keys)?;
+    let vertices = create_vertices(
+        &unique_vertex_keys,
+        &positions,
+        &texture_coordinates,
+        &normals,
+    )?;
 
     Ok((vertices, indices))
 }
 
-fn component_indices_to_vertex(
-    component_indices: [usize; 3],
-    positions: &[[f32; 3]],
-    texture_coordinates: &[[f32; 2]],
-    normals: &[[f32; 3]],
-) -> result::Result<[f32; 8]> {
-    let position = slice::get_component(positions, component_indices, 0)?;
-    let texture_coordinates = slice::get_component(texture_coordinates, component_indices, 1)?;
-    let normal = slice::get_component(normals, component_indices, 2)?;
+fn get_vertex_key_indices(
+    vertex_keys: &[VertexKey],
+    unique_vertex_keys: &[VertexKey],
+) -> result::Result<Vec<usize>> {
+    vertex_keys
+        .iter()
+        .map(|key| find_index(unique_vertex_keys, *key))
+        .collect()
+}
+
+fn find_index(unique_vertex_keys: &[VertexKey], vertex_key: VertexKey) -> result::Result<usize> {
+    unique_vertex_keys
+        .iter()
+        .position(|key| vertex_key == *key)
+        .ok_or(Error::InvalidFormat)
+}
+
+fn unique_vertex_keys(vertex_keys: &[VertexKey]) -> Vec<VertexKey> {
+    let mut unique_vertex_keys = vec![];
+
+    for vertex_key in vertex_keys.iter() {
+        match unique_vertex_keys.iter().find(|key| *key == vertex_key) {
+            Some(_) => {}
+            None => {
+                unique_vertex_keys.push(*vertex_key);
+            }
+        }
+    }
+
+    unique_vertex_keys
+}
+
+fn create_vertices(
+    vertex_keys: &[VertexKey],
+    positions: &[Position],
+    texture_coordinates: &[TextureCoordinates],
+    normals: &[Normal],
+) -> result::Result<Vec<Vertex>> {
+    vertex_keys
+        .iter()
+        .map(|vertex_key| create_vertex(*vertex_key, positions, texture_coordinates, normals))
+        .collect()
+}
+
+fn create_vertex(
+    vertex_key: VertexKey,
+    positions: &[Position],
+    texture_coordinates: &[TextureCoordinates],
+    normals: &[Normal],
+) -> result::Result<Vertex> {
+    let position = get_attribute(positions, vertex_key[0])?;
+    let texture_coordinates = get_attribute(texture_coordinates, vertex_key[1])?;
+    let normal = get_attribute(normals, vertex_key[2])?;
 
     Ok([
         position[0],
@@ -70,55 +111,13 @@ fn component_indices_to_vertex(
     ])
 }
 
-fn sub(value: usize, sub_value: usize) -> result::Result<usize> {
-    value.checked_sub(sub_value).ok_or(Error::InvalidFormat)
-}
+fn get_attribute<const N: usize>(
+    attributes: &[[f32; N]],
+    index: usize,
+) -> result::Result<&[f32; N]> {
+    let index = index.checked_sub(1).ok_or(Error::InvalidFormat)?;
 
-fn parse_face(
-    tokens: &[&str],
-    component_indices: &mut Vec<[usize; 3]>,
-    indices: &mut Vec<usize>,
-) -> result::Result<()> {
-    // TODO: Check number of vertices
-    let vertex_index1 = slice::split_vertex_index(tokens, 0)?;
-    let vertex_index2 = slice::split_vertex_index(tokens, 1)?;
-    let vertex_index3 = slice::split_vertex_index(tokens, 2)?;
-
-    parse_vertex(&vertex_index1, component_indices, indices)?;
-    parse_vertex(&vertex_index2, component_indices, indices)?;
-    parse_vertex(&vertex_index3, component_indices, indices)?;
-
-    Ok(())
-}
-
-fn parse_vertex(
-    tokens: &[&str],
-    component_indices: &mut Vec<[usize; 3]>,
-    indices: &mut Vec<usize>,
-) -> result::Result<()> {
-    let component_index1 = slice::parse_integer(tokens, 0)?;
-    let component_index2 = slice::parse_integer(tokens, 1)?;
-    let component_index3 = slice::parse_integer(tokens, 2)?;
-
-    let vertex_index = [component_index1, component_index2, component_index3];
-
-    match component_indices
-        .iter()
-        .enumerate()
-        .find(|(_, x)| **x == vertex_index)
-    {
-        Some((index, _vertex_index)) => {
-            indices.push(index);
-        }
-        None => {
-            component_indices.push(vertex_index);
-            let index = component_indices.len() - 1;
-
-            indices.push(index);
-        }
-    }
-
-    Ok(())
+    slice::get(attributes, index)
 }
 
 #[cfg(test)]
