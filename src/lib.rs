@@ -99,9 +99,25 @@ fn get_attribute<const N: usize>(
 
 #[cfg(test)]
 mod tests {
+    use crate::*;
+
     #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    fn get_attribute_with_valid_index() {
+        let attribute = get_attribute(&[[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], 1)
+            .expect("failed to get attribute with valid index");
+
+        assert_eq!(attribute, &[1.0, 2.0]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn get_attribute_with_invalid_index() {
+        get_attribute(&[[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], 0).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn get_attribute_with_out_of_range_index() {
+        get_attribute(&[[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], 4).unwrap();
     }
 }
