@@ -58,13 +58,9 @@ fn get_vertex_key_indices(
 ) -> result::Result<Vec<usize>> {
     vertex_keys
         .iter()
-        .map(|vertex_key| {
-            unique_vertex_keys
-                .iter()
-                .position(|key| vertex_key == key)
-                .ok_or(Error::InvalidFormat)
-        })
-        .collect()
+        .map(|vertex_key| unique_vertex_keys.iter().position(|key| vertex_key == key))
+        .collect::<Option<_>>()
+        .ok_or(Error::InvalidFormat)
 }
 
 fn create_vertices(
