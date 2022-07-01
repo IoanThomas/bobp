@@ -45,6 +45,14 @@ pub fn parse_obj(input: impl AsRef<str>) -> result::Result<(Vec<Vertex>, Vec<usi
     Ok((vertices, indices))
 }
 
+fn unique_vertex_keys(vertex_keys: &[VertexKey]) -> Vec<VertexKey> {
+    let mut uniques = vertex_keys.to_vec();
+    uniques.sort_unstable();
+    uniques.dedup();
+
+    uniques
+}
+
 fn get_vertex_key_indices(
     vertex_keys: &[VertexKey],
     unique_vertex_keys: &[VertexKey],
@@ -53,28 +61,6 @@ fn get_vertex_key_indices(
         .iter()
         .map(|key| find_index(unique_vertex_keys, *key))
         .collect()
-}
-
-fn find_index(unique_vertex_keys: &[VertexKey], vertex_key: VertexKey) -> result::Result<usize> {
-    unique_vertex_keys
-        .iter()
-        .position(|key| vertex_key == *key)
-        .ok_or(Error::InvalidFormat)
-}
-
-fn unique_vertex_keys(vertex_keys: &[VertexKey]) -> Vec<VertexKey> {
-    let mut unique_vertex_keys = vec![];
-
-    for vertex_key in vertex_keys.iter() {
-        match unique_vertex_keys.iter().find(|key| *key == vertex_key) {
-            Some(_) => {}
-            None => {
-                unique_vertex_keys.push(*vertex_key);
-            }
-        }
-    }
-
-    unique_vertex_keys
 }
 
 fn create_vertices(
@@ -109,6 +95,13 @@ fn create_vertex(
         normal[1],
         normal[2],
     ])
+}
+
+fn find_index(unique_vertex_keys: &[VertexKey], vertex_key: VertexKey) -> result::Result<usize> {
+    unique_vertex_keys
+        .iter()
+        .position(|key| vertex_key == *key)
+        .ok_or(Error::InvalidFormat)
 }
 
 fn get_attribute<const N: usize>(
