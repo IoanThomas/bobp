@@ -102,6 +102,33 @@ mod tests {
     use crate::*;
 
     #[test]
+    fn create_vertices_with_valid_keys() {
+        let vertex_keys = vec![[1, 2, 3]];
+        let positions = vec![[3.0; 3]];
+        let texture_coordinates = vec![[0.2; 2], [0.5; 2]];
+        let normals = vec![[0.5; 3], [0.2; 3], [0.3; 3]];
+
+        let vertices = create_vertices(&vertex_keys, &positions, &texture_coordinates, &normals)
+            .expect("failed to create vertices with valid keys");
+
+        assert_eq!(vertices.len(), 1);
+        assert_eq!(vertices[0][0..3], [3.0; 3]);
+        assert_eq!(vertices[0][3..5], [0.5; 2]);
+        assert_eq!(vertices[0][5..8], [0.3; 3]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn create_vertices_with_invalid_keys() {
+        let vertex_keys = vec![[1, 5, 3]];
+        let positions = vec![[3.0; 3]];
+        let texture_coordinates = vec![[0.2; 2], [0.5; 2]];
+        let normals = vec![[0.5; 3], [0.2; 3], [0.3; 3]];
+
+        create_vertices(&vertex_keys, &positions, &texture_coordinates, &normals).unwrap();
+    }
+
+    #[test]
     fn get_attribute_with_valid_index() {
         let attribute = get_attribute(&[[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], 1)
             .expect("failed to get attribute with valid index");
