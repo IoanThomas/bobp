@@ -61,3 +61,35 @@ fn parse_vertex_key(token: Token) -> result::Result<VertexKey> {
 
     Ok([position_index, texture_coordinates_index, normal_index])
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_valid_position() {
+        let position = position(&["-2.4", "1.5", "0.6"]).expect("failed to parse valid position");
+
+        assert_eq!(position[0], -2.4);
+        assert_eq!(position[1], 1.5);
+        assert_eq!(position[2], 0.6);
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_invalid_position() {
+        position(&["xyz", "-4.0", "0.5"]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_too_few_position_tokens() {
+        position(&["8.5", "-1.2"]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_too_many_position_tokens() {
+        position(&["0.05", "-78.0", "3", "5"]).unwrap();
+    }
+}
