@@ -146,4 +146,31 @@ mod tests {
     fn parse_too_many_normal_tokens() {
         normal(&["0.5", "0.5", "0.5", "0.5"]).unwrap();
     }
+
+    #[test]
+    fn parse_valid_face() {
+        let face = face(&["1/2/3", "4/5/6", "7/8/9"]).expect("failed to parse valid face");
+
+        assert_eq!(face[0], [1, 2, 3]);
+        assert_eq!(face[1], [4, 5, 6]);
+        assert_eq!(face[2], [7, 8, 9]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_invalid_face() {
+        face(&["1/2/3", "abc", "7/8/9"]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_too_few_face_tokens() {
+        face(&["2/4/6", "8,10,12"]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_too_many_face_tokens() {
+        face(&["0/1/1", "2/3/5", "8/13/21", "34/55/89"]).unwrap();
+    }
 }
