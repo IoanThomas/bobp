@@ -4,7 +4,6 @@ use crate::types::{Normal, Position, TextureCoordinates, Token, Vertex, VertexKe
 pub mod error;
 mod parse;
 pub mod result;
-mod slice;
 mod types;
 
 pub fn parse_obj(input: impl AsRef<str>) -> result::Result<(Vec<Vertex>, Vec<usize>)> {
@@ -110,7 +109,7 @@ fn get_attribute<const N: usize>(
 ) -> result::Result<&[f32; N]> {
     let index = index.checked_sub(1).ok_or(Error::InvalidFormat)?;
 
-    slice::get(attributes, index)
+    attributes.get(index).ok_or(Error::InvalidFormat)
 }
 
 #[cfg(test)]
