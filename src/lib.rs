@@ -84,16 +84,13 @@ fn create_vertex(
     let texture_coordinates = get_attribute(texture_coordinates, vertex_key[1])?;
     let normal = get_attribute(normals, vertex_key[2])?;
 
-    Ok([
-        position[0],
-        position[1],
-        position[2],
-        texture_coordinates[0],
-        texture_coordinates[1],
-        normal[0],
-        normal[1],
-        normal[2],
-    ])
+    let mut vertex = [0f32; 8];
+
+    vertex[0..3].copy_from_slice(position);
+    vertex[3..5].copy_from_slice(texture_coordinates);
+    vertex[5..8].copy_from_slice(normal);
+
+    Ok(vertex)
 }
 
 fn find_index(unique_vertex_keys: &[VertexKey], vertex_key: VertexKey) -> result::Result<usize> {
@@ -107,9 +104,10 @@ fn get_attribute<const N: usize>(
     attributes: &[[f32; N]],
     index: usize,
 ) -> result::Result<&[f32; N]> {
-    let index = index.checked_sub(1).ok_or(Error::InvalidFormat)?;
-
-    attributes.get(index).ok_or(Error::InvalidFormat)
+    index
+        .checked_sub(1)
+        .and_then(|index| attributes.get(index))
+        .ok_or(Error::InvalidFormat)
 }
 
 #[cfg(test)]
