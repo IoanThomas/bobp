@@ -1,5 +1,6 @@
 use crate::error::Error;
 use crate::types::{Normal, Position, TextureCoordinates, Token, Vertex, VertexKey};
+use std::ops::Not;
 
 pub mod error;
 mod parse;
@@ -45,11 +46,12 @@ pub fn parse_obj(input: impl AsRef<str>) -> result::Result<(Vec<Vertex>, Vec<usi
 }
 
 fn unique_vertex_keys(vertex_keys: &[VertexKey]) -> Vec<VertexKey> {
-    let mut uniques = vertex_keys.to_vec();
-    uniques.sort_unstable();
-    uniques.dedup();
-
-    uniques
+    vertex_keys.iter().fold(vec![], |mut uniques, vertex_key| {
+        if uniques.iter().any(|key| key == vertex_key).not() {
+            uniques.push(*vertex_key);
+        }
+        uniques
+    })
 }
 
 fn get_vertex_key_indices(
