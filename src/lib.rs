@@ -7,6 +7,22 @@ mod parse;
 pub mod result;
 mod types;
 
+/// Parses a string in the Wavefront OBJ file format into a list of vertices and
+/// a list of indices.
+///
+/// # Examples
+///
+/// ```
+/// let obj = "v  1.000000 -0.000000  1.000000
+///            v -1.000000  0.000000 -1.000000
+///            v -1.000000 -0.000000  1.000000
+///            vn -0.0000 1.0000 -0.0000
+///            vt 1.000000 0.000000
+///            vt 0.000000 1.000000
+///            vt 0.000000 0.000000
+///            f 1/1/1 2/2/1 3/3/1";
+/// let (vertices, indices) = bop::parse_obj(obj).unwrap();
+/// ```
 pub fn parse_obj(input: impl AsRef<str>) -> result::Result<(Vec<Vertex>, Vec<usize>)> {
     let mut positions = vec![];
     let mut texture_coordinates = vec![];
@@ -17,7 +33,7 @@ pub fn parse_obj(input: impl AsRef<str>) -> result::Result<(Vec<Vertex>, Vec<usi
         let tokens = line.split_whitespace().collect::<Vec<Token>>();
 
         if tokens.is_empty() {
-            return Err(Error::InvalidFormat);
+            continue;
         }
 
         let key = tokens[0];
