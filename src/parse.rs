@@ -92,4 +92,31 @@ mod tests {
     fn parse_too_many_position_tokens() {
         position(&["0.05", "-78.0", "3", "5"]).unwrap();
     }
+
+    #[test]
+    fn parse_valid_texture_coordinates() {
+        let texture_coordinates = texture_coordinates(&["0.4", "0.6"])
+            .expect("failed to parse valid texture coordinates");
+
+        assert_eq!(texture_coordinates[0], 0.4);
+        assert_eq!(texture_coordinates[1], 0.6);
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_invalid_texture_coordinates() {
+        texture_coordinates(&["0.0", "invalid"]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_too_few_texture_coordinates_tokens() {
+        texture_coordinates(&["1.0"]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_too_many_texture_coordinates_tokens() {
+        texture_coordinates(&["0.05", "0.2", "0.1"]).unwrap();
+    }
 }
