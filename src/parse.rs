@@ -119,4 +119,31 @@ mod tests {
     fn parse_too_many_texture_coordinates_tokens() {
         texture_coordinates(&["0.05", "0.2", "0.1"]).unwrap();
     }
+
+    #[test]
+    fn parse_valid_normal() {
+        let normal = normal(&["1.0", "0.0", "0.0"]).expect("failed to parse valid normal");
+
+        assert_eq!(normal[0], 1.0);
+        assert_eq!(normal[1], 0.0);
+        assert_eq!(normal[2], 0.0);
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_invalid_normal() {
+        normal(&["0.0", "", "1.0"]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_too_few_normal_tokens() {
+        normal(&["0.5"]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_too_many_normal_tokens() {
+        normal(&["0.5", "0.5", "0.5", "0.5"]).unwrap();
+    }
 }
