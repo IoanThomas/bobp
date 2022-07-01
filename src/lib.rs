@@ -58,7 +58,12 @@ fn get_vertex_key_indices(
 ) -> result::Result<Vec<usize>> {
     vertex_keys
         .iter()
-        .map(|key| find_index(unique_vertex_keys, *key))
+        .map(|vertex_key| {
+            unique_vertex_keys
+                .iter()
+                .position(|key| vertex_key == key)
+                .ok_or(Error::InvalidFormat)
+        })
         .collect()
 }
 
@@ -70,34 +75,20 @@ fn create_vertices(
 ) -> result::Result<Vec<Vertex>> {
     vertex_keys
         .iter()
-        .map(|vertex_key| create_vertex(*vertex_key, positions, texture_coordinates, normals))
+        .map(|vertex_key| {
+            let position = get_attribute(positions, vertex_key[0])?;
+            let texture_coordinates = get_attribute(texture_coordinates, vertex_key[1])?;
+            let normal = get_attribute(normals, vertex_key[2])?;
+
+            let mut vertex = [0f32; 8];
+
+            vertex[0..3].copy_from_slice(position);
+            vertex[3..5].copy_from_slice(texture_coordinates);
+            vertex[5..8].copy_from_slice(normal);
+
+            Ok(vertex)
+        })
         .collect()
-}
-
-fn create_vertex(
-    vertex_key: VertexKey,
-    positions: &[Position],
-    texture_coordinates: &[TextureCoordinates],
-    normals: &[Normal],
-) -> result::Result<Vertex> {
-    let position = get_attribute(positions, vertex_key[0])?;
-    let texture_coordinates = get_attribute(texture_coordinates, vertex_key[1])?;
-    let normal = get_attribute(normals, vertex_key[2])?;
-
-    let mut vertex = [0f32; 8];
-
-    vertex[0..3].copy_from_slice(position);
-    vertex[3..5].copy_from_slice(texture_coordinates);
-    vertex[5..8].copy_from_slice(normal);
-
-    Ok(vertex)
-}
-
-fn find_index(unique_vertex_keys: &[VertexKey], vertex_key: VertexKey) -> result::Result<usize> {
-    unique_vertex_keys
-        .iter()
-        .position(|key| vertex_key == *key)
-        .ok_or(Error::InvalidFormat)
 }
 
 fn get_attribute<const N: usize>(
