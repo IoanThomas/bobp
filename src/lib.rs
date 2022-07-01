@@ -102,6 +102,15 @@ mod tests {
     use crate::*;
 
     #[test]
+    fn get_unique_vertex_keys() {
+        let vertex_keys = [[1, 2, 3], [4, 5, 6], [1, 2, 3]];
+        let unique = unique_vertex_keys(&vertex_keys);
+
+        assert_eq!(unique.iter().filter(|key| **key == [1, 2, 3]).count(), 1);
+        assert_eq!(unique.iter().filter(|key| **key == [4, 5, 6]).count(), 1);
+    }
+
+    #[test]
     #[should_panic]
     fn get_vertex_key_indices_with_valid_keys() {
         let unique_vertex_keys = [[1, 2, 3]];
