@@ -102,6 +102,32 @@ mod tests {
     use crate::*;
 
     #[test]
+    #[should_panic]
+    fn get_vertex_key_indices_with_valid_keys() {
+        let unique_vertex_keys = [[1, 2, 3]];
+        let vertex_keys = [unique_vertex_keys[0], unique_vertex_keys[1]];
+
+        get_vertex_key_indices(&vertex_keys, &unique_vertex_keys).unwrap();
+    }
+
+    #[test]
+    fn get_vertex_key_indices_with_invalid_keys() {
+        let unique_vertex_keys = [[1, 2, 3], [4, 5, 6]];
+        let vertex_keys = [
+            unique_vertex_keys[0],
+            unique_vertex_keys[1],
+            unique_vertex_keys[0],
+        ];
+
+        let indices = get_vertex_key_indices(&vertex_keys, &unique_vertex_keys)
+            .expect("failed to get vertex key indices from valid keys");
+
+        assert_eq!(indices[0], 0);
+        assert_eq!(indices[1], 1);
+        assert_eq!(indices[2], 0);
+    }
+
+    #[test]
     fn create_vertices_with_valid_keys() {
         let vertex_keys = vec![[1, 2, 3]];
         let positions = vec![[3.0; 3]];
