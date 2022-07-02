@@ -7,8 +7,12 @@ mod parse;
 pub mod result;
 mod types;
 
-/// Parses a string in the Wavefront OBJ file format into a list of vertices and
-/// a list of indices.
+/// Parses a string in the Wavefront OBJ file format into a list of vertices and a list of indices.
+///
+/// Each vertex consists of 8 `f32`s.
+/// The first 3 are the position, the next 2 are the texture coordinates, and the final 3 are the normal.
+/// Only lines needed to generate this information are parsed.
+/// All other lines are ignored.
 ///
 /// # Examples
 ///
