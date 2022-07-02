@@ -7,7 +7,7 @@ fn main() {
         }
     };
 
-    let (vertices, indices) = match bop::parse_obj(obj_string) {
+    let (vertices, indices) = match bobp::parse_obj(obj_string) {
         Ok(data) => data,
         Err(error) => {
             eprintln!("Failed to parse OBJ string: {}", error);

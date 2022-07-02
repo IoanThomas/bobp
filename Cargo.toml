@@ -1,9 +1,9 @@
 [package]
-name = "bop"
+name = "bobp"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/IoanThomas/bop"
+repository = "https://github.com/IoanThomas/bobp"
 readme = "README.md"
 description = "A library for basic parsing of Wavefront OBJ files"
 categories = ["rendering::data-formats"]

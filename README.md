@@ -1,6 +1,6 @@
-[![Continuous Integration](https://github.com/IoanThomas/bop/actions/workflows/ci.yml/badge.svg)](https://github.com/IoanThomas/bop/actions/workflows/ci.yml)
+[![Continuous Integration](https://github.com/IoanThomas/bobp/actions/workflows/ci.yml/badge.svg)](https://github.com/IoanThomas/bobp/actions/workflows/ci.yml)
 
-# bop
+# bobp
 
 A library for basic parsing of Wavefront OBJ files.
 
@@ -13,7 +13,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-bop = "0.1"
+bobp = "0.1"
 ```
 
 ## License

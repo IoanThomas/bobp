@@ -25,7 +25,7 @@ mod types;
 ///            vt 0.000000 1.000000
 ///            vt 0.000000 0.000000
 ///            f 1/1/1 2/2/1 3/3/1";
-/// let (vertices, indices) = bop::parse_obj(obj).unwrap();
+/// let (vertices, indices) = bobp::parse_obj(obj).unwrap();
 /// ```
 pub fn parse_obj(input: impl AsRef<str>) -> result::Result<(Vec<Vertex>, Vec<usize>)> {
     let mut positions = vec![];
