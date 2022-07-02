@@ -1,4 +1,5 @@
 [![Continuous Integration](https://github.com/IoanThomas/bobp/actions/workflows/ci.yml/badge.svg)](https://github.com/IoanThomas/bobp/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/bobp.svg)](https://crates.io/crates/bobp)
 
 # bobp
 
