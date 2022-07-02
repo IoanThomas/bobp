@@ -6,6 +6,7 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/IoanThomas/bop"
 readme = "README.md"
 description = "A library for basic parsing of Wavefront OBJ files"
+categories = ["rendering::data-formats"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
